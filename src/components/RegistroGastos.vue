@@ -102,7 +102,7 @@
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000/api'
+const API_BASE = import.meta.env.VITE_API_BASE
 
 const gastos = ref([])
 const resumen = ref({})
@@ -135,7 +135,7 @@ const cargarResumen = async () => {
 
 const cargarDatosColoreados = async () => {
   try {
-    const { data } = await axios.get('http://localhost:3000/datos-coloreados')
+    const { data } = await axios.get(`${API_BASE}/datos-coloreados`)
     datosColoreados2025.value = data['2025'] || {}
   } catch (err) {
     console.error('Error al cargar datos-coloreados:', err)

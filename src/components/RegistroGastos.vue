@@ -16,7 +16,9 @@
             <th class="px-4 py-2 text-left cursor-pointer" @click="ordenarPor('rowIndex')">
             # {{ orden.campo === 'rowIndex' ? (orden.ascendente ? '⬆️' : '⬇️') : '' }}
             </th>
-            <th class="px-4 py-2 text-left">Descripción</th>
+            <th class="px-4 py-2 text-left cursor-pointer" @click="ordenarPor('descripcion')">
+              Descripción {{ orden.campo === 'descripcion' ? (orden.ascendente ? '⬆️' : '⬇️') : '' }}
+            </th>
             <th class="px-4 py-2 text-left cursor-pointer" @click="ordenarPor('valor')">
               Valor {{ orden.campo === 'valor' ? (orden.ascendente ? '⬆️' : '⬇️') : '' }}
             </th>
@@ -159,12 +161,45 @@ const ordenarPor = (campo) => {
 const gastosOrdenados = computed(() => {
   const copia = [...gastos.value]
   if (!orden.value.campo) return copia
+
   return copia.sort((a, b) => {
-    const valorA = a[orden.value.campo]
-    const valorB = b[orden.value.campo]
+    let valorA = a[orden.value.campo]
+    let valorB = b[orden.value.campo]
+
+    if (orden.value.campo === 'fecha') {
+      const parseFecha = (str) => {
+        const [dd, mm, yyyy] = str.split('/')
+        return new Date(`${yyyy}-${mm}-${dd}`).getTime()
+      }
+      valorA = parseFecha(valorA)
+      valorB = parseFecha(valorB)
+    }
+
+    if (orden.value.campo === 'valor') {
+      const parseValor = (str) => {
+        if (typeof str === 'number') return str
+        return Number(str.replace(/[^0-9.-]+/g, '').replace(',', '.')) || 0
+      }
+      valorA = parseValor(valorA)
+      valorB = parseValor(valorB)
+    }
+
+    if (orden.value.campo === 'rowIndex') {
+      valorA = Number(valorA)
+      valorB = Number(valorB)
+    }
+
+    if (orden.value.campo === 'descripcion') {
+      return orden.value.ascendente
+        ? valorA.localeCompare(valorB)
+        : valorB.localeCompare(valorA)
+    }
+
     return orden.value.ascendente ? valorA - valorB : valorB - valorA
   })
 })
+
+
 
 onMounted(cargarGastos)
 </script>
